@@ -1,4 +1,4 @@
-name: Build Lean FFmpeg (Signature + Signature_Cmp)
+name: Build Lean FFmpeg (Signature + HWAccel)
 
 on:
   workflow_dispatch:
@@ -16,28 +16,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ---------- Linux (Ubuntu) ----------
       - name: Install build dependencies (Linux)
         if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             autoconf automake build-essential cmake git libtool pkg-config \
-            yasm nasm
+            yasm nasm \
+            libdrm-dev libva-dev \
+            nvidia-cuda-toolkit
 
-      - name: Install build dependencies (macOS)
-        if: matrix.os == 'macos-13'
-        run: |
-          brew install automake autoconf libtool pkg-config nasm
-
-      - name: Install build dependencies (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: bash
-        run: |
-          choco install make nasm pkgconfiglite -y
-          # MSYS2 is another option if you want a Unix-like shell
-
-      - name: Configure FFmpeg (Linux/macOS)
-        if: matrix.os != 'windows-latest'
+      - name: Configure FFmpeg (Linux + CUDA/NVENC)
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           ./configure \
             --disable-everything \
@@ -50,14 +41,23 @@ jobs:
             --enable-parser=hevc \
             --enable-demuxer=mov,mp4,mpegts \
             --enable-protocol=file \
+            --enable-nvenc \
+            --enable-cuda-nvcc \
+            --enable-libnpp \
+            --extra-cflags=-I/usr/include \
+            --extra-ldflags=-L/usr/lib/x86_64-linux-gnu \
             --disable-doc
 
-      - name: Configure FFmpeg (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: bash
+      # ---------- macOS ----------
+      - name: Install build dependencies (macOS)
+        if: matrix.os == 'macos-13'
+        run: |
+          brew install automake autoconf libtool pkg-config nasm
+
+      - name: Configure FFmpeg (macOS + VideoToolbox)
+        if: matrix.os == 'macos-13'
         run: |
           ./configure \
-            --toolchain=msvc \
             --disable-everything \
             --enable-version3 \
             --enable-filter=signature \
@@ -71,6 +71,43 @@ jobs:
             --enable-videotoolbox \
             --disable-doc
 
+      # ---------- Windows ----------
+      - name: Set up MSVC
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install MSYS2
+        if: matrix.os == 'windows-latest'
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            make
+            yasm
+            nasm
+            pkgconfiglite
+
+      - name: Configure FFmpeg (Windows MSVC)
+        if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
+        run: |
+          ./configure \
+            --toolchain=msvc \
+            --disable-everything \
+            --enable-version3 \
+            --enable-filter=signature \
+            --enable-filter=signature_cmp \
+            --enable-decoder=h264 \
+            --enable-decoder=hevc \
+            --enable-parser=h264 \
+            --enable-parser=hevc \
+            --enable-demuxer=mov,mp4,mpegts \
+            --enable-protocol=file \
+            --disable-doc
+
+      # ---------- Build ----------
       - name: Build
         run: make -j$(nproc || sysctl -n hw.ncpu || echo 2)
 
@@ -82,3 +119,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-${{ matrix.os }}
+          path: ffmpeg-${{ matrix.os }}.tar.gz
