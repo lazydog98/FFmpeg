@@ -16,37 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ---------- Linux (Ubuntu) ----------
-      - name: Install build dependencies (Linux)
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            autoconf automake build-essential cmake git libtool pkg-config \
-            yasm nasm \
-            libdrm-dev libva-dev \
-            nvidia-cuda-toolkit
-
-      - name: Configure FFmpeg (Linux + CUDA/NVENC)
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          ./configure \
-            --disable-everything \
-            --enable-version3 \
-            --enable-filter=signature \
-            --enable-filter=signature_cmp \
-            --enable-decoder=h264 \
-            --enable-decoder=hevc \
-            --enable-parser=h264 \
-            --enable-parser=hevc \
-            --enable-demuxer=mov,mp4,mpegts \
-            --enable-protocol=file \
-            --enable-nvenc \
-            --enable-cuda-nvcc \
-            --enable-libnpp \
-            --extra-cflags=-I/usr/include \
-            --extra-ldflags=-L/usr/lib/x86_64-linux-gnu \
-            --disable-doc
+      
 
       # ---------- macOS ----------
       - name: Install build dependencies (macOS)
@@ -112,15 +82,6 @@ jobs:
             --arch=x86_64 \
             --enable-cross-compile
 
-      # ---------- Build (Linux) ----------
-      - name: Build (Linux)
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: make -j$(nproc)
-
-      - name: Package (Linux)
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          tar czf ffmpeg-${{ matrix.os }}.tar.gz ffmpeg ffprobe
 
       # ---------- Build (macOS) ----------
       - name: Build (macOS)
