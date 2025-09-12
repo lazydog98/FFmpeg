@@ -3,7 +3,7 @@ name: Build Lean FFmpeg (Signature + Signature_Cmp)
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main,v1 ]
 
 jobs:
   build:
