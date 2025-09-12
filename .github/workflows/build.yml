@@ -41,6 +41,27 @@ jobs:
             --enable-videotoolbox \
             --disable-doc
 
+      # macOS: shared build (dylib)
+      - name: Configure FFmpeg (macOS shared)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          ./configure \
+            --prefix=$(pwd)/out/macos/shared \
+            --disable-everything \
+            --enable-version3 \
+            --enable-shared \
+            --enable-filter=signature \
+            --enable-filter=signature_cmp \
+            --enable-decoder=h264 \
+            --enable-decoder=hevc \
+            --enable-parser=h264 \
+            --enable-parser=hevc \
+            --enable-demuxer=mov,mp4,mpegts \
+            --enable-protocol=file \
+            --enable-videotoolbox \
+            --disable-static \
+            --disable-doc
+
       # ---------- Windows ----------
       - name: Set up MSVC
         if: ${{ matrix.os == 'windows-latest' }}
@@ -87,11 +108,66 @@ jobs:
       - name: Build (macOS)
         if: ${{ matrix.os == 'macos-13' }}
         run: make -j$(sysctl -n hw.ncpu)
-
-      - name: Package (macOS)
+      - name: Install (macOS static)
         if: ${{ matrix.os == 'macos-13' }}
         run: |
-          tar czf ffmpeg-${{ matrix.os }}.tar.gz ffmpeg ffprobe
+          make install DESTDIR=$(pwd)/out/macos/static || true
+
+      - name: Strip (macOS static)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          if command -v strip >/dev/null 2>&1; then
+            strip -x out/macos/static/usr/local/bin/ffmpeg || true
+            strip -x out/macos/static/usr/local/bin/ffprobe || true
+          fi
+
+      - name: Smoke test (macOS static)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          echo "Checking signature filter in macOS static build"
+          out/macos/static/usr/local/bin/ffmpeg -filters | grep signature || (out/macos/static/usr/local/bin/ffmpeg -filters && false)
+          echo "Listing hwaccels (may be empty)"
+          out/macos/static/usr/local/bin/ffmpeg -hwaccels || true
+
+      - name: Package (macOS static)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          mkdir -p artifacts/macos/static
+          cp out/macos/static/usr/local/bin/ffmpeg out/macos/static/usr/local/bin/ffprobe artifacts/macos/static/ || true
+          tar czf ffmpeg-macos-static.tar.gz -C artifacts/macos/static .
+
+      - name: Build (macOS shared)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          # configure already run for shared; build and install
+          make -j$(sysctl -n hw.ncpu)
+          make install DESTDIR=$(pwd)/out/macos/shared || true
+
+      - name: Strip (macOS shared)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          if command -v strip >/dev/null 2>&1; then
+            strip -x out/macos/shared/usr/local/bin/ffmpeg || true
+            strip -x out/macos/shared/usr/local/bin/ffprobe || true
+            find out/macos/shared -name "*.dylib" -exec strip -x {} \; || true
+          fi
+
+      - name: Smoke test (macOS shared)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          echo "Checking signature filter in macOS shared build"
+          out/macos/shared/usr/local/bin/ffmpeg -filters | grep signature || (out/macos/shared/usr/local/bin/ffmpeg -filters && false)
+          echo "Listing hwaccels (may be empty)"
+          out/macos/shared/usr/local/bin/ffmpeg -hwaccels || true
+
+      - name: Package (macOS shared)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          mkdir -p artifacts/macos/shared
+          cp -v out/macos/shared/usr/local/bin/ffmpeg out/macos/shared/usr/local/bin/ffprobe artifacts/macos/shared/ || true
+          # copy dylibs
+          find out/macos/shared -name "*.dylib" -exec cp -v {} artifacts/macos/shared/ \; || true
+          tar czf ffmpeg-macos-shared.tar.gz -C artifacts/macos/shared .
 
       # ---------- Build (Windows) ----------
       - name: Build (Windows)
@@ -100,6 +176,91 @@ jobs:
         run: |
           # MSYS2 provides nproc, use it for parallel make
           make -j$(nproc || echo 2)
+
+      - name: Install (Windows static)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          make install DESTDIR=$(pwd)/out/windows/static || true
+
+      - name: Strip (Windows static)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          if command -v strip >/dev/null 2>&1; then
+            strip out/windows/static/usr/local/bin/ffmpeg.exe || true
+            strip out/windows/static/usr/local/bin/ffprobe.exe || true
+          fi
+
+      - name: Smoke test (Windows static)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          echo "Checking signature filter in Windows static build"
+          out/windows/static/usr/local/bin/ffmpeg.exe -filters | grep signature || (out/windows/static/usr/local/bin/ffmpeg.exe -filters && false)
+          echo "Listing hwaccels (may be empty)"
+          out/windows/static/usr/local/bin/ffmpeg.exe -hwaccels || true
+
+      - name: Package (Windows static)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          mkdir -p artifacts/windows/static
+          cp out/windows/static/usr/local/bin/ffmpeg.exe out/windows/static/usr/local/bin/ffprobe.exe artifacts/windows/static/ || true
+          zip -r ffmpeg-windows-static.zip artifacts/windows/static || true
+
+      - name: Build (Windows shared)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          # Reconfigure for shared libraries
+          ./configure \
+            --prefix=$(pwd)/out/windows/shared \
+            --disable-everything \
+            --enable-version3 \
+            --enable-shared \
+            --enable-filter=signature \
+            --enable-filter=signature_cmp \
+            --enable-decoder=h264 \
+            --enable-decoder=hevc \
+            --enable-parser=h264 \
+            --enable-parser=hevc \
+            --enable-demuxer=mov,mp4,mpegts \
+            --enable-protocol=file \
+            --disable-static \
+            --arch=x86_64 \
+            --enable-cross-compile
+          make -j$(nproc || echo 2)
+          make install DESTDIR=$(pwd)/out/windows/shared || true
+
+      - name: Strip (Windows shared)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          if command -v strip >/dev/null 2>&1; then
+            strip out/windows/shared/usr/local/bin/ffmpeg.exe || true
+            strip out/windows/shared/usr/local/bin/ffprobe.exe || true
+            find out/windows/shared -name "*.dll" -exec strip {} \; || true
+          fi
+
+      - name: Smoke test (Windows shared)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          echo "Checking signature filter in Windows shared build"
+          out/windows/shared/usr/local/bin/ffmpeg.exe -filters | grep signature || (out/windows/shared/usr/local/bin/ffmpeg.exe -filters && false)
+          echo "Listing hwaccels (may be empty)"
+          out/windows/shared/usr/local/bin/ffmpeg.exe -hwaccels || true
+
+      - name: Package (Windows shared)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          mkdir -p artifacts/windows/shared
+          cp out/windows/shared/usr/local/bin/ffmpeg.exe out/windows/shared/usr/local/bin/ffprobe.exe artifacts/windows/shared/ || true
+          # copy DLLs
+          find out/windows/shared -name "*.dll" -exec cp -v {} artifacts/windows/shared/ \; || true
+          zip -r ffmpeg-windows-shared.zip artifacts/windows/shared || true
 
       - name: Package (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
@@ -113,10 +274,8 @@ jobs:
             tar czf ffmpeg-${{ matrix.os }}.tar.gz ffmpeg.exe ffprobe.exe
           fi
 
-      - name: Upload artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-${{ matrix.os }}
-          path: |
-            ffmpeg-${{ matrix.os }}.tar.gz
-            ffmpeg-${{ matrix.os }}.zip
+          path: artifacts/**
