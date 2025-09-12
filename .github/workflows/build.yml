@@ -67,7 +67,7 @@ jobs:
               #--enable-encoder=libx265 \
               #--enable-hwaccel=h264_videotoolbox \
               #--enable-hwaccel=hevc_videotoolbox \
-              --disable-doc
+              #--disable-doc
 
       # macOS: shared build (dylib)
       - name: Configure FFmpeg (macOS shared)
@@ -116,7 +116,7 @@ jobs:
               #--enable-hwaccel=h264_videotoolbox \
               #--enable-hwaccel=hevc_videotoolbox \
               --disable-static \
-              --disable-doc
+              #--disable-doc
 
       # ---------- Windows ----------
       - name: Set up MSVC
@@ -182,7 +182,7 @@ jobs:
               --enable-encoder=mpeg4 \
               #--enable-encoder=libx264 \
               #--enable-encoder=libx265 \
-              --disable-doc \
+              #--disable-doc \
               --arch=x86_64 \
               --enable-cross-compile
 
@@ -320,7 +320,7 @@ jobs:
               #--enable-encoder=libx264 \
               #--enable-encoder=libx265 \
               --disable-static \
-              --disable-doc \
+              #--disable-doc \
               --arch=x86_64 \
               --enable-cross-compile
           make -j$(nproc || echo 2)
