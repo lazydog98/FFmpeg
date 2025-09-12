@@ -87,7 +87,8 @@ jobs:
             make
             yasm
             nasm
-            pkgconfiglite
+            pkg-config
+            zip
 
       - name: Configure FFmpeg (Windows MSVC)
         if: ${{ matrix.os == 'windows-latest' }}
