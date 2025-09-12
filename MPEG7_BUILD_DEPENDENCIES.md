@@ -44,16 +44,34 @@ ffmpeg -i input.mp4 -vf "signature=format=xml:filename=video.sig.xml" -f null -
 ```
 
 ### Signature Comparison (using detectmode)
+The signature filter has built-in comparison capabilities when processing multiple inputs:
+
 ```bash
+# Compare two video files simultaneously
 ffmpeg -i video1.mp4 -i video2.mp4 \
-  -filter_complex "signature=detectmode=full:format=xml:filename1=video1.sig.xml:filename2=video2.sig.xml" \
+  -filter_complex "[0:v][1:v]signature=detectmode=full:nb_inputs=2:format=xml:filename=comparison.xml" \
   -f null -
 ```
+
+### Available Detection Modes
+- `detectmode=off` - Only generate signatures (default)
+- `detectmode=full` - Full comparison analysis
+- `detectmode=fast` - Fast comparison mode
 
 ### Binary Format Output
 ```bash
 ffmpeg -i input.mp4 -vf "signature=format=binary:filename=video.sig.bin" -f null -
 ```
+
+### Advanced Options
+```bash
+# Custom thresholds for similarity detection
+ffmpeg -i video1.mp4 -i video2.mp4 \
+  -filter_complex "[0:v][1:v]signature=detectmode=full:nb_inputs=2:th_d=9000:th_dc=60000:th_xh=116" \
+  -f null -
+```
+
+**Important Note**: There is no separate `signature_cmp` filter. The comparison functionality is built into the main `signature` filter via the `detectmode` and `nb_inputs` parameters.
 
 ## Key Dependencies Explained
 

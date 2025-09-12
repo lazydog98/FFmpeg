@@ -12,6 +12,7 @@
 *.gcno
 *.h.c
 *.ilk
+*.mp4
 *.lib
 *.pc
 *.pdb
