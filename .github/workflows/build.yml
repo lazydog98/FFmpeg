@@ -57,17 +57,18 @@ jobs:
               --enable-decoder=wmav2 \
               --enable-decoder=wmapro \
               --enable-filter=signature \
-              #--enable-filter=signature_cmp \
               --enable-filter=color \
               --enable-filter=testsrc \
               --enable-filter=testsrc2 \
               --enable-indev=lavfi \
-              --enable-encoder=mpeg4 \
-              #--enable-encoder=libx264 \
-              #--enable-encoder=libx265 \
-              #--enable-hwaccel=h264_videotoolbox \
-              #--enable-hwaccel=hevc_videotoolbox \
-              #--disable-doc
+              --enable-encoder=mpeg4
+              # Commented out options:
+              # --enable-filter=signature_cmp
+              # --enable-encoder=libx264
+              # --enable-encoder=libx265
+              # --enable-hwaccel=h264_videotoolbox
+              # --enable-hwaccel=hevc_videotoolbox
+              # --disable-doc
 
       # macOS: shared build (dylib)
       - name: Configure FFmpeg (macOS shared)
@@ -105,18 +106,19 @@ jobs:
               --enable-decoder=wmav2 \
               --enable-decoder=wmapro \
               --enable-filter=signature \
-              #--enable-filter=signature_cmp \
               --enable-filter=color \
               --enable-filter=testsrc \
               --enable-filter=testsrc2 \
               --enable-indev=lavfi \
-              --enable-encoder=mpeg4 \
-              #--enable-encoder=libx264 \
-              #--enable-encoder=libx265 \
-              #--enable-hwaccel=h264_videotoolbox \
-              #--enable-hwaccel=hevc_videotoolbox \
-              #--disable-static \
-              #--disable-doc
+              --enable-encoder=mpeg4
+              # Commented out options:
+              # --enable-filter=signature_cmp
+              # --enable-encoder=libx264
+              # --enable-encoder=libx265
+              # --enable-hwaccel=h264_videotoolbox
+              # --enable-hwaccel=hevc_videotoolbox
+              # --disable-static
+              # --disable-doc
 
       # ---------- Windows ----------
       - name: Set up MSVC
@@ -174,17 +176,18 @@ jobs:
               --enable-decoder=wmav2 \
               --enable-decoder=wmapro \
               --enable-filter=signature \
-              #--enable-filter=signature_cmp \
               --enable-filter=color \
               --enable-filter=testsrc \
               --enable-filter=testsrc2 \
               --enable-indev=lavfi \
               --enable-encoder=mpeg4 \
-              #--enable-encoder=libx264 \
-              #--enable-encoder=libx265 \
-              #--disable-doc \
               --arch=x86_64 \
               --enable-cross-compile
+              # Commented out options:
+              # --enable-filter=signature_cmp
+              # --enable-encoder=libx264
+              # --enable-encoder=libx265
+              # --disable-doc
 
 
       # ---------- Build (macOS) ----------
@@ -311,18 +314,19 @@ jobs:
               --enable-decoder=wmav2 \
               --enable-decoder=wmapro \
               --enable-filter=signature \
-              #--enable-filter=signature_cmp \
               --enable-filter=color \
               --enable-filter=testsrc \
               --enable-filter=testsrc2 \
               --enable-indev=lavfi \
               --enable-encoder=mpeg4 \
-              #--enable-encoder=libx264 \
-              #--enable-encoder=libx265 \
-              #--disable-static \
-              #--disable-doc \
               --arch=x86_64 \
               --enable-cross-compile
+              # Commented out options:
+              # --enable-filter=signature_cmp
+              # --enable-encoder=libx264
+              # --enable-encoder=libx265
+              # --disable-static
+              # --disable-doc
           make -j$(nproc || echo 2)
           make install DESTDIR=$(pwd)/out/windows/shared || true
 
