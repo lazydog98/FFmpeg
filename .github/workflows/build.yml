@@ -30,6 +30,9 @@ jobs:
           ./configure \
             --disable-everything \
             --enable-version3 \
+            --enable-gpl \
+            --enable-avcodec \
+            --enable-avformat \
               --enable-protocol=file \
               --enable-protocol=pipe \
               --enable-muxer=null \
@@ -37,7 +40,6 @@ jobs:
               --enable-muxer=asf \
               --enable-muxer=matroska \
               --enable-demuxer=mov \
-              --enable-demuxer=mp4 \
               --enable-demuxer=mpegts \
               --enable-demuxer=asf \
               --enable-demuxer=matroska \
@@ -63,7 +65,8 @@ jobs:
               --enable-encoder=mpeg4 \
               #--enable-encoder=libx264 \
               #--enable-encoder=libx265 \
-              --enable-videotoolbox \
+              --enable-hwaccel=h264_videotoolbox \
+              --enable-hwaccel=hevc_videotoolbox \
               --disable-doc
 
       # macOS: shared build (dylib)
@@ -75,6 +78,9 @@ jobs:
             --disable-everything \
             --enable-version3 \
             --enable-shared \
+            --enable-gpl \
+            --enable-avcodec \
+            --enable-avformat \
               --enable-protocol=file \
               --enable-protocol=pipe \
               --enable-muxer=null \
@@ -82,7 +88,6 @@ jobs:
               --enable-muxer=asf \
               --enable-muxer=matroska \
               --enable-demuxer=mov \
-              --enable-demuxer=mp4 \
               --enable-demuxer=mpegts \
               --enable-demuxer=asf \
               --enable-demuxer=matroska \
@@ -108,7 +113,8 @@ jobs:
               --enable-encoder=mpeg4 \
               #--enable-encoder=libx264 \
               #--enable-encoder=libx265 \
-              --enable-videotoolbox \
+              --enable-hwaccel=h264_videotoolbox \
+              --enable-hwaccel=hevc_videotoolbox \
               --disable-static \
               --disable-doc
 
@@ -141,6 +147,9 @@ jobs:
           ./configure \
             --disable-everything \
             --enable-version3 \
+            --enable-gpl \
+            --enable-avcodec \
+            --enable-avformat \
               --enable-protocol=file \
               --enable-protocol=pipe \
               --enable-muxer=null \
@@ -148,7 +157,6 @@ jobs:
               --enable-muxer=asf \
               --enable-muxer=matroska \
               --enable-demuxer=mov \
-              --enable-demuxer=mp4 \
               --enable-demuxer=mpegts \
               --enable-demuxer=asf \
               --enable-demuxer=matroska \
@@ -276,6 +284,9 @@ jobs:
             --prefix=$(pwd)/out/windows/shared \
             --disable-everything \
             --enable-version3 \
+            --enable-gpl \
+            --enable-avcodec \
+            --enable-avformat \
               --enable-protocol=file \
               --enable-protocol=pipe \
               --enable-muxer=null \
@@ -283,7 +294,6 @@ jobs:
               --enable-muxer=asf \
               --enable-muxer=matroska \
               --enable-demuxer=mov \
-              --enable-demuxer=mp4 \
               --enable-demuxer=mpegts \
               --enable-demuxer=asf \
               --enable-demuxer=matroska \
