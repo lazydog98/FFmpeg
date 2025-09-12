@@ -33,6 +33,8 @@ jobs:
             --disable-everything \
             --enable-version3 \
             # Protocols
+            --disable-protocols \
+            --enable-protocol=file \
             --enable-protocol=pipe \
             # Muxers (outputs)
             --enable-muxer=null \
