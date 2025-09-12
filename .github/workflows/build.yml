@@ -89,13 +89,15 @@ jobs:
             nasm
             pkg-config
             zip
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-pkg-config
 
-      - name: Configure FFmpeg (Windows MSVC)
+      - name: Configure FFmpeg (Windows MSYS2/MinGW)
         if: ${{ matrix.os == 'windows-latest' }}
         shell: msys2 {0}
         run: |
+          # Use the MSYS2/MinGW GCC toolchain (avoid MSVC cl.exe issues)
           ./configure \
-            --toolchain=msvc \
             --disable-everything \
             --enable-version3 \
             --enable-filter=signature \
@@ -106,7 +108,9 @@ jobs:
             --enable-parser=hevc \
             --enable-demuxer=mov,mp4,mpegts \
             --enable-protocol=file \
-            --disable-doc
+            --disable-doc \
+            --arch=x86_64 \
+            --enable-cross-compile
 
       # ---------- Build (Linux) ----------
       - name: Build (Linux)
