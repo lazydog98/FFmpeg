@@ -91,6 +91,7 @@ jobs:
           ./configure \
             --disable-everything \
             --enable-version3 \
+            --enable-indev=lavfi \
             --enable-filter=signature \
             --enable-filter=signature_cmp \
             --enable-decoder=h264 \
@@ -98,6 +99,17 @@ jobs:
             --enable-parser=h264 \
             --enable-parser=hevc \
             --enable-demuxer=mov,mp4,mpegts \
+            --enable-demuxer=asf \
+            --enable-decoder=wmv1 \
+            --enable-decoder=wmv2 \
+            --enable-decoder=wmv3 \
+            --enable-decoder=vc1 \
+            --enable-decoder=wmav1 \
+            --enable-decoder=wmav2 \
+            --enable-decoder=wmapro \
+            --enable-filter=color \
+            --enable-filter=testsrc \
+            --enable-filter=testsrc2 \
             --enable-protocol=file \
             --disable-doc \
             --arch=x86_64 \
@@ -202,6 +214,7 @@ jobs:
             --disable-everything \
             --enable-version3 \
             --enable-shared \
+            --enable-indev=lavfi \
             --enable-filter=signature \
             --enable-filter=signature_cmp \
             --enable-decoder=h264 \
@@ -209,8 +222,18 @@ jobs:
             --enable-parser=h264 \
             --enable-parser=hevc \
             --enable-demuxer=mov,mp4,mpegts \
+            --enable-demuxer=asf \
+            --enable-decoder=wmv1 \
+            --enable-decoder=wmv2 \
+            --enable-decoder=wmv3 \
+            --enable-decoder=vc1 \
+            --enable-decoder=wmav1 \
+            --enable-decoder=wmav2 \
+            --enable-decoder=wmapro \
+            --enable-filter=color \
+            --enable-filter=testsrc \
+            --enable-filter=testsrc2 \
             --enable-protocol=file \
-            --disable-static \
             --arch=x86_64 \
             --enable-cross-compile
           make -j$(nproc || echo 2)
