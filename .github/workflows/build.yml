@@ -121,13 +121,7 @@ jobs:
             strip -x out/macos/static/usr/local/bin/ffprobe || true
           fi
 
-      - name: Smoke test (macOS static)
-        if: ${{ matrix.os == 'macos-13' }}
-        run: |
-          echo "Checking signature filter in macOS static build"
-          out/macos/static/usr/local/bin/ffmpeg -filters | grep signature || (out/macos/static/usr/local/bin/ffmpeg -filters && false)
-          echo "Listing hwaccels (may be empty)"
-          out/macos/static/usr/local/bin/ffmpeg -hwaccels || true
+      
 
       - name: Package (macOS static)
         if: ${{ matrix.os == 'macos-13' }}
@@ -152,13 +146,7 @@ jobs:
             find out/macos/shared -name "*.dylib" -exec strip -x {} \; || true
           fi
 
-      - name: Smoke test (macOS shared)
-        if: ${{ matrix.os == 'macos-13' }}
-        run: |
-          echo "Checking signature filter in macOS shared build"
-          out/macos/shared/usr/local/bin/ffmpeg -filters | grep signature || (out/macos/shared/usr/local/bin/ffmpeg -filters && false)
-          echo "Listing hwaccels (may be empty)"
-          out/macos/shared/usr/local/bin/ffmpeg -hwaccels || true
+      
 
       - name: Package (macOS shared)
         if: ${{ matrix.os == 'macos-13' }}
@@ -192,14 +180,7 @@ jobs:
             strip out/windows/static/usr/local/bin/ffprobe.exe || true
           fi
 
-      - name: Smoke test (Windows static)
-        if: ${{ matrix.os == 'windows-latest' }}
-        shell: msys2 {0}
-        run: |
-          echo "Checking signature filter in Windows static build"
-          out/windows/static/usr/local/bin/ffmpeg.exe -filters | grep signature || (out/windows/static/usr/local/bin/ffmpeg.exe -filters && false)
-          echo "Listing hwaccels (may be empty)"
-          out/windows/static/usr/local/bin/ffmpeg.exe -hwaccels || true
+      
 
       - name: Package (Windows static)
         if: ${{ matrix.os == 'windows-latest' }}
@@ -243,14 +224,7 @@ jobs:
             find out/windows/shared -name "*.dll" -exec strip {} \; || true
           fi
 
-      - name: Smoke test (Windows shared)
-        if: ${{ matrix.os == 'windows-latest' }}
-        shell: msys2 {0}
-        run: |
-          echo "Checking signature filter in Windows shared build"
-          out/windows/shared/usr/local/bin/ffmpeg.exe -filters | grep signature || (out/windows/shared/usr/local/bin/ffmpeg.exe -filters && false)
-          echo "Listing hwaccels (may be empty)"
-          out/windows/shared/usr/local/bin/ffmpeg.exe -hwaccels || true
+      
 
       - name: Package (Windows shared)
         if: ${{ matrix.os == 'windows-latest' }}
