@@ -188,6 +188,8 @@ jobs:
         run: |
           mkdir -p artifacts/windows/static
           cp out/windows/static/usr/local/bin/ffmpeg.exe out/windows/static/usr/local/bin/ffprobe.exe artifacts/windows/static/ || true
+            # Copy required DLLs
+            cp /mingw64/bin/libiconv-2.dll /mingw64/bin/libwinpthread-1.dll /mingw64/bin/zlib1.dll artifacts/windows/static/ || true
           zip -r ffmpeg-windows-static.zip artifacts/windows/static || true
 
       - name: Build (Windows shared)
@@ -234,6 +236,8 @@ jobs:
           cp out/windows/shared/usr/local/bin/ffmpeg.exe out/windows/shared/usr/local/bin/ffprobe.exe artifacts/windows/shared/ || true
           # copy DLLs
           find out/windows/shared -name "*.dll" -exec cp -v {} artifacts/windows/shared/ \; || true
+            # Copy required DLLs
+            cp /mingw64/bin/libiconv-2.dll /mingw64/bin/libwinpthread-1.dll /mingw64/bin/zlib1.dll artifacts/windows/shared/ || true
           zip -r ffmpeg-windows-shared.zip artifacts/windows/shared || true
 
       - name: Package (Windows)
