@@ -111,6 +111,9 @@ jobs:
             --enable-filter=testsrc \
             --enable-filter=testsrc2 \
             --enable-protocol=file \
+            --enable-muxer=mp4 \
+            --enable-muxer=asf \
+            --enable-muxer=matroska \
             --disable-doc \
             --arch=x86_64 \
             --enable-cross-compile
@@ -234,6 +237,9 @@ jobs:
             --enable-filter=testsrc \
             --enable-filter=testsrc2 \
             --enable-protocol=file \
+            --enable-muxer=mp4 \
+            --enable-muxer=asf \
+            --enable-muxer=matroska \
             --arch=x86_64 \
             --enable-cross-compile
           make -j$(nproc || echo 2)
