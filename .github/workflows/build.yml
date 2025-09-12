@@ -18,6 +18,93 @@ jobs:
 
       
 
+      # ---------- Linux/Ubuntu ----------
+      - name: Install build dependencies (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential nasm yasm pkg-config
+
+      - name: Configure FFmpeg (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          ./configure \
+            --disable-everything \
+            --enable-version3 \
+            --enable-gpl \
+            --enable-avcodec \
+            --enable-avformat \
+            --enable-avfilter \
+            --enable-avutil \
+            --enable-swscale \
+              --enable-protocol=file \
+              --enable-protocol=pipe \
+              --enable-protocol=data \
+              --enable-muxer=null \
+              --enable-muxer=mp4 \
+              --enable-muxer=asf \
+              --enable-muxer=matroska \
+              --enable-muxer=avi \
+              --enable-demuxer=mov \
+              --enable-demuxer=mpegts \
+              --enable-demuxer=asf \
+              --enable-demuxer=matroska \
+              --enable-demuxer=avi \
+              --enable-demuxer=concat \
+              --enable-parser=h264 \
+              --enable-parser=hevc \
+              --enable-parser=aac \
+              --enable-parser=mpeg4video \
+              --enable-decoder=h264 \
+              --enable-decoder=hevc \
+              --enable-decoder=aac \
+              --enable-decoder=mpeg4 \
+              --enable-decoder=wmv1 \
+              --enable-decoder=wmv2 \
+              --enable-decoder=wmv3 \
+              --enable-decoder=vc1 \
+              --enable-decoder=wmav1 \
+              --enable-decoder=wmav2 \
+              --enable-decoder=wmapro \
+              --enable-decoder=wrapped_avframe \
+              --enable-decoder=rawvideo \
+              --enable-filter=signature \
+              --enable-filter=color \
+              --enable-filter=testsrc \
+              --enable-filter=testsrc2 \
+              --enable-filter=scale \
+              --enable-filter=format \
+              --enable-filter=null \
+              --enable-filter=concat \
+              --enable-indev=lavfi \
+              --enable-encoder=mpeg4 \
+              --enable-encoder=wrapped_avframe \
+              --enable-encoder=rawvideo
+
+      - name: Build (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: make -j$(nproc)
+
+      - name: Install (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          make install DESTDIR=$(pwd)/out/ubuntu || true
+
+      - name: Strip (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          if command -v strip >/dev/null 2>&1; then
+            strip out/ubuntu/usr/local/bin/ffmpeg || true
+            strip out/ubuntu/usr/local/bin/ffprobe || true
+          fi
+
+      - name: Package (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          mkdir -p artifacts/ubuntu
+          cp out/ubuntu/usr/local/bin/ffmpeg out/ubuntu/usr/local/bin/ffprobe artifacts/ubuntu/ || true
+          tar czf ffmpeg-ubuntu.tar.gz -C artifacts/ubuntu .
+
       # ---------- macOS ----------
       - name: Install build dependencies (macOS)
         if: ${{ matrix.os == 'macos-13' }}
@@ -33,22 +120,31 @@ jobs:
             --enable-gpl \
             --enable-avcodec \
             --enable-avformat \
+            --enable-avfilter \
+            --enable-avutil \
+            --enable-swscale \
               --enable-protocol=file \
               --enable-protocol=pipe \
+              --enable-protocol=data \
               --enable-muxer=null \
               --enable-muxer=mp4 \
               --enable-muxer=asf \
               --enable-muxer=matroska \
+              --enable-muxer=avi \
               --enable-demuxer=mov \
               --enable-demuxer=mpegts \
               --enable-demuxer=asf \
               --enable-demuxer=matroska \
+              --enable-demuxer=avi \
+              --enable-demuxer=concat \
               --enable-parser=h264 \
               --enable-parser=hevc \
               --enable-parser=aac \
+              --enable-parser=mpeg4video \
               --enable-decoder=h264 \
               --enable-decoder=hevc \
               --enable-decoder=aac \
+              --enable-decoder=mpeg4 \
               --enable-decoder=wmv1 \
               --enable-decoder=wmv2 \
               --enable-decoder=wmv3 \
@@ -57,13 +153,19 @@ jobs:
               --enable-decoder=wmav2 \
               --enable-decoder=wmapro \
               --enable-decoder=wrapped_avframe \
+              --enable-decoder=rawvideo \
               --enable-filter=signature \
               --enable-filter=color \
               --enable-filter=testsrc \
               --enable-filter=testsrc2 \
+              --enable-filter=scale \
+              --enable-filter=format \
+              --enable-filter=null \
+              --enable-filter=concat \
               --enable-indev=lavfi \
               --enable-encoder=mpeg4 \
-              --enable-encoder=wrapped_avframe
+              --enable-encoder=wrapped_avframe \
+              --enable-encoder=rawvideo
               # Commented out options:
               # --enable-filter=signature_cmp
               # --enable-encoder=libx264
@@ -84,22 +186,31 @@ jobs:
             --enable-gpl \
             --enable-avcodec \
             --enable-avformat \
+            --enable-avfilter \
+            --enable-avutil \
+            --enable-swscale \
               --enable-protocol=file \
               --enable-protocol=pipe \
+              --enable-protocol=data \
               --enable-muxer=null \
               --enable-muxer=mp4 \
               --enable-muxer=asf \
               --enable-muxer=matroska \
+              --enable-muxer=avi \
               --enable-demuxer=mov \
               --enable-demuxer=mpegts \
               --enable-demuxer=asf \
               --enable-demuxer=matroska \
+              --enable-demuxer=avi \
+              --enable-demuxer=concat \
               --enable-parser=h264 \
               --enable-parser=hevc \
               --enable-parser=aac \
+              --enable-parser=mpeg4video \
               --enable-decoder=h264 \
               --enable-decoder=hevc \
               --enable-decoder=aac \
+              --enable-decoder=mpeg4 \
               --enable-decoder=wmv1 \
               --enable-decoder=wmv2 \
               --enable-decoder=wmv3 \
@@ -108,13 +219,19 @@ jobs:
               --enable-decoder=wmav2 \
               --enable-decoder=wmapro \
               --enable-decoder=wrapped_avframe \
+              --enable-decoder=rawvideo \
               --enable-filter=signature \
               --enable-filter=color \
               --enable-filter=testsrc \
               --enable-filter=testsrc2 \
+              --enable-filter=scale \
+              --enable-filter=format \
+              --enable-filter=null \
+              --enable-filter=concat \
               --enable-indev=lavfi \
               --enable-encoder=mpeg4 \
-              --enable-encoder=wrapped_avframe
+              --enable-encoder=wrapped_avframe \
+              --enable-encoder=rawvideo
               # Commented out options:
               # --enable-filter=signature_cmp
               # --enable-encoder=libx264
@@ -156,22 +273,31 @@ jobs:
             --enable-gpl \
             --enable-avcodec \
             --enable-avformat \
+            --enable-avfilter \
+            --enable-avutil \
+            --enable-swscale \
               --enable-protocol=file \
               --enable-protocol=pipe \
+              --enable-protocol=data \
               --enable-muxer=null \
               --enable-muxer=mp4 \
               --enable-muxer=asf \
               --enable-muxer=matroska \
+              --enable-muxer=avi \
               --enable-demuxer=mov \
               --enable-demuxer=mpegts \
               --enable-demuxer=asf \
               --enable-demuxer=matroska \
+              --enable-demuxer=avi \
+              --enable-demuxer=concat \
               --enable-parser=h264 \
               --enable-parser=hevc \
               --enable-parser=aac \
+              --enable-parser=mpeg4video \
               --enable-decoder=h264 \
               --enable-decoder=hevc \
               --enable-decoder=aac \
+              --enable-decoder=mpeg4 \
               --enable-decoder=wmv1 \
               --enable-decoder=wmv2 \
               --enable-decoder=wmv3 \
@@ -180,13 +306,19 @@ jobs:
               --enable-decoder=wmav2 \
               --enable-decoder=wmapro \
               --enable-decoder=wrapped_avframe \
+              --enable-decoder=rawvideo \
               --enable-filter=signature \
               --enable-filter=color \
               --enable-filter=testsrc \
               --enable-filter=testsrc2 \
+              --enable-filter=scale \
+              --enable-filter=format \
+              --enable-filter=null \
+              --enable-filter=concat \
               --enable-indev=lavfi \
               --enable-encoder=mpeg4 \
               --enable-encoder=wrapped_avframe \
+              --enable-encoder=rawvideo \
               --arch=x86_64 \
               --enable-cross-compile
               # Commented out options:
@@ -296,22 +428,31 @@ jobs:
             --enable-gpl \
             --enable-avcodec \
             --enable-avformat \
+            --enable-avfilter \
+            --enable-avutil \
+            --enable-swscale \
               --enable-protocol=file \
               --enable-protocol=pipe \
+              --enable-protocol=data \
               --enable-muxer=null \
               --enable-muxer=mp4 \
               --enable-muxer=asf \
               --enable-muxer=matroska \
+              --enable-muxer=avi \
               --enable-demuxer=mov \
               --enable-demuxer=mpegts \
               --enable-demuxer=asf \
               --enable-demuxer=matroska \
+              --enable-demuxer=avi \
+              --enable-demuxer=concat \
               --enable-parser=h264 \
               --enable-parser=hevc \
               --enable-parser=aac \
+              --enable-parser=mpeg4video \
               --enable-decoder=h264 \
               --enable-decoder=hevc \
               --enable-decoder=aac \
+              --enable-decoder=mpeg4 \
               --enable-decoder=wmv1 \
               --enable-decoder=wmv2 \
               --enable-decoder=wmv3 \
@@ -320,13 +461,19 @@ jobs:
               --enable-decoder=wmav2 \
               --enable-decoder=wmapro \
               --enable-decoder=wrapped_avframe \
+              --enable-decoder=rawvideo \
               --enable-filter=signature \
               --enable-filter=color \
               --enable-filter=testsrc \
               --enable-filter=testsrc2 \
+              --enable-filter=scale \
+              --enable-filter=format \
+              --enable-filter=null \
+              --enable-filter=concat \
               --enable-indev=lavfi \
               --enable-encoder=mpeg4 \
               --enable-encoder=wrapped_avframe \
+              --enable-encoder=rawvideo \
               --arch=x86_64 \
               --enable-cross-compile
               # Commented out options:
