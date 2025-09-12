@@ -33,9 +33,9 @@ jobs:
             --disable-everything \
             --enable-version3 \
             # Protocols
-            --disable-protocols \
-            --enable-protocol=file \
-            --enable-protocol=pipe \
+            #--disable-protocols \
+            #--enable-protocol=file \
+            #--enable-protocol=pipe \
             # Muxers (outputs)
             --enable-muxer=null \
             --enable-muxer=mp4 \
@@ -83,9 +83,9 @@ jobs:
             --enable-version3 \
             --enable-shared \
             # Protocols
-            --disable-protocols \
-            --enable-protocol=file \
-            --enable-protocol=pipe \
+            #--disable-protocols \
+            #--enable-protocol=file \
+            #--enable-protocol=pipe \
             # Muxers (outputs)
             --enable-muxer=null \
             --enable-muxer=mp4 \
@@ -155,9 +155,9 @@ jobs:
             --disable-everything \
             --enable-version3 \
             # Protocols
-            --disable-protocols \
-            --enable-protocol=file \
-            --enable-protocol=pipe \
+            #--disable-protocols \
+            #--enable-protocol=file \
+            #--enable-protocol=pipe \
             # Muxers (outputs)
             --enable-muxer=null \
             --enable-muxer=mp4 \
@@ -295,9 +295,9 @@ jobs:
             --disable-everything \
             --enable-version3 \
             # Protocols
-            --disable-protocols \
-            --enable-protocol=file \
-            --enable-protocol=pipe \
+            #--disable-protocols \
+            #--enable-protocol=file \
+            #--enable-protocol=pipe \
             # Muxers (outputs)
             --enable-muxer=null \
             --enable-muxer=mp4 \
