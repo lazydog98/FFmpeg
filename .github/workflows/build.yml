@@ -18,7 +18,7 @@ jobs:
 
       # ---------- Linux (Ubuntu) ----------
       - name: Install build dependencies (Linux)
-        if: matrix.os == 'ubuntu-22.04'
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -28,7 +28,7 @@ jobs:
             nvidia-cuda-toolkit
 
       - name: Configure FFmpeg (Linux + CUDA/NVENC)
-        if: matrix.os == 'ubuntu-22.04'
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           ./configure \
             --disable-everything \
@@ -50,12 +50,12 @@ jobs:
 
       # ---------- macOS ----------
       - name: Install build dependencies (macOS)
-        if: matrix.os == 'macos-13'
+        if: ${{ matrix.os == 'macos-13' }}
         run: |
           brew install automake autoconf libtool pkg-config nasm
 
       - name: Configure FFmpeg (macOS + VideoToolbox)
-        if: matrix.os == 'macos-13'
+        if: ${{ matrix.os == 'macos-13' }}
         run: |
           ./configure \
             --disable-everything \
@@ -73,13 +73,13 @@ jobs:
 
       # ---------- Windows ----------
       - name: Set up MSVC
-        if: matrix.os == 'windows-latest'
+        if: ${{ matrix.os == 'windows-latest' }}
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
       - name: Install MSYS2
-        if: matrix.os == 'windows-latest'
+        if: ${{ matrix.os == 'windows-latest' }}
         uses: msys2/setup-msys2@v2
         with:
           update: true
@@ -90,7 +90,7 @@ jobs:
             pkgconfiglite
 
       - name: Configure FFmpeg (Windows MSVC)
-        if: matrix.os == 'windows-latest'
+        if: ${{ matrix.os == 'windows-latest' }}
         shell: msys2 {0}
         run: |
           ./configure \
@@ -107,16 +107,50 @@ jobs:
             --enable-protocol=file \
             --disable-doc
 
-      # ---------- Build ----------
-      - name: Build
-        run: make -j$(nproc || sysctl -n hw.ncpu || echo 2)
+      # ---------- Build (Linux) ----------
+      - name: Build (Linux)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: make -j$(nproc)
 
-      - name: Package
+      - name: Package (Linux)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           tar czf ffmpeg-${{ matrix.os }}.tar.gz ffmpeg ffprobe
+
+      # ---------- Build (macOS) ----------
+      - name: Build (macOS)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: make -j$(sysctl -n hw.ncpu)
+
+      - name: Package (macOS)
+        if: ${{ matrix.os == 'macos-13' }}
+        run: |
+          tar czf ffmpeg-${{ matrix.os }}.tar.gz ffmpeg ffprobe
+
+      # ---------- Build (Windows) ----------
+      - name: Build (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          # MSYS2 provides nproc, use it for parallel make
+          make -j$(nproc || echo 2)
+
+      - name: Package (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
+        run: |
+          # Create a zip which is the common artifact on Windows
+          if command -v zip >/dev/null 2>&1; then
+            zip -r ffmpeg-${{ matrix.os }}.zip ffmpeg.exe ffprobe.exe
+          else
+            # fall back to tar (msys2 usually provides tar)
+            tar czf ffmpeg-${{ matrix.os }}.tar.gz ffmpeg.exe ffprobe.exe
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-${{ matrix.os }}
-          path: ffmpeg-${{ matrix.os }}.tar.gz
+          path: |
+            ffmpeg-${{ matrix.os }}.tar.gz
+            ffmpeg-${{ matrix.os }}.zip
