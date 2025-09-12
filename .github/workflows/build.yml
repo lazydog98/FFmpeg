@@ -1,0 +1,84 @@
+name: Build Lean FFmpeg (Signature + Signature_Cmp)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-13, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies (Linux)
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf automake build-essential cmake git libtool pkg-config \
+            yasm nasm
+
+      - name: Install build dependencies (macOS)
+        if: matrix.os == 'macos-13'
+        run: |
+          brew install automake autoconf libtool pkg-config nasm
+
+      - name: Install build dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          choco install make nasm pkgconfiglite -y
+          # MSYS2 is another option if you want a Unix-like shell
+
+      - name: Configure FFmpeg (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          ./configure \
+            --disable-everything \
+            --enable-version3 \
+            --enable-filter=signature \
+            --enable-filter=signature_cmp \
+            --enable-decoder=h264 \
+            --enable-decoder=hevc \
+            --enable-parser=h264 \
+            --enable-parser=hevc \
+            --enable-demuxer=mov,mp4,mpegts \
+            --enable-protocol=file \
+            --disable-doc
+
+      - name: Configure FFmpeg (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          ./configure \
+            --toolchain=msvc \
+            --disable-everything \
+            --enable-version3 \
+            --enable-filter=signature \
+            --enable-filter=signature_cmp \
+            --enable-decoder=h264 \
+            --enable-decoder=hevc \
+            --enable-parser=h264 \
+            --enable-parser=hevc \
+            --enable-demuxer=mov,mp4,mpegts \
+            --enable-protocol=file \
+            --enable-videotoolbox \
+            --disable-doc
+
+      - name: Build
+        run: make -j$(nproc || sysctl -n hw.ncpu || echo 2)
+
+      - name: Package
+        run: |
+          tar czf ffmpeg-${{ matrix.os }}.tar.gz ffmpeg ffprobe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-${{ matrix.os }}
