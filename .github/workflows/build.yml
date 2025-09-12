@@ -50,13 +50,52 @@ jobs:
             --disable-everything \
             --enable-version3 \
             --enable-shared \
-            --enable-filter=signature \
-            --enable-filter=signature_cmp \
-            --enable-decoder=h264 \
-            --enable-decoder=hevc \
+            \
+            # Protocols
+            --enable-protocol=file \
+            --enable-protocol=pipe \
+            \
+            # Muxers (outputs)
+            --enable-muxer=null \
+            --enable-muxer=mp4 \
+            --enable-muxer=asf \
+            --enable-muxer=matroska \
+            \
+            # Demuxers (inputs)
+            --enable-demuxer=mov,mp4,mpegts,asf,matroska \
+            \
+            # Parsers
             --enable-parser=h264 \
             --enable-parser=hevc \
-            --enable-demuxer=mov,mp4,mpegts \
+            --enable-parser=aac \
+            \
+            # Decoders
+            --enable-decoder=h264 \
+            --enable-decoder=hevc \
+            --enable-decoder=aac \
+            --enable-decoder=wmv1 \
+            --enable-decoder=wmv2 \
+            --enable-decoder=wmv3 \
+            --enable-decoder=vc1 \
+            --enable-decoder=wmav1 \
+            --enable-decoder=wmav2 \
+            --enable-decoder=wmapro \
+            \
+            # Filters
+            --enable-filter=signature \
+            --enable-filter=signature_cmp \
+            --enable-filter=color \
+            --enable-filter=testsrc \
+            --enable-filter=testsrc2 \
+            \
+            # Devices
+            --enable-indev=lavfi \
+            \
+            # Optional: minimal encoder for MP4 test output
+            --enable-encoder=mpeg4 \
+            #--enable-encoder=libx264 \
+            #--enable-encoder=libx265 \
+            \
             --enable-protocol=file \
             --enable-videotoolbox \
             --disable-static \
@@ -91,15 +130,29 @@ jobs:
           ./configure \
             --disable-everything \
             --enable-version3 \
-            --enable-indev=lavfi \
-            --enable-filter=signature \
-            --enable-filter=signature_cmp \
-            --enable-decoder=h264 \
-            --enable-decoder=hevc \
+
+            # Protocols
+            --enable-protocol=file \
+            --enable-protocol=pipe \
+            \
+            # Muxers (outputs)
+            --enable-muxer=null \
+            --enable-muxer=mp4 \
+            --enable-muxer=asf \
+            --enable-muxer=matroska \
+            \
+            # Demuxers (inputs)
+            --enable-demuxer=mov,mp4,mpegts,asf,matroska \
+            \
+            # Parsers
             --enable-parser=h264 \
             --enable-parser=hevc \
-            --enable-demuxer=mov,mp4,mpegts \
-            --enable-demuxer=asf \
+            --enable-parser=aac \
+            \
+            # Decoders
+            --enable-decoder=h264 \
+            --enable-decoder=hevc \
+            --enable-decoder=aac \
             --enable-decoder=wmv1 \
             --enable-decoder=wmv2 \
             --enable-decoder=wmv3 \
@@ -107,13 +160,22 @@ jobs:
             --enable-decoder=wmav1 \
             --enable-decoder=wmav2 \
             --enable-decoder=wmapro \
+            \
+            # Filters
+            --enable-filter=signature \
+            --enable-filter=signature_cmp \
             --enable-filter=color \
             --enable-filter=testsrc \
             --enable-filter=testsrc2 \
-            --enable-protocol=file \
-            --enable-muxer=mp4 \
-            --enable-muxer=asf \
-            --enable-muxer=matroska \
+            \
+            # Devices
+            --enable-indev=lavfi \
+            \
+            # Optional: minimal encoder for MP4 test output
+            --enable-encoder=mpeg4 \
+            #--enable-encoder=libx264 \
+            #--enable-encoder=libx265 \
+            \
             --disable-doc \
             --arch=x86_64 \
             --enable-cross-compile
@@ -240,6 +302,9 @@ jobs:
             --enable-muxer=mp4 \
             --enable-muxer=asf \
             --enable-muxer=matroska \
+            --enable-encoder=mpeg4 \
+            --enable-encoder=libx264 \
+            --enable-encoder=libx265 \
             --arch=x86_64 \
             --enable-cross-compile
           make -j$(nproc || echo 2)
