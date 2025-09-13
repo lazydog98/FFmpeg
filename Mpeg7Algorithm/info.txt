@@ -1,0 +1,18 @@
+# Build the project
+dotnet build Mpeg7SignatureParser.csproj
+
+# Run examples
+dotnet run -- parse video1.sig.xml
+dotnet run -- compare video1.sig.xml video2.sig.xml  
+dotnet run -- batch . results.json
+
+
+
+# Parse single file
+Mpeg7SignatureParser.exe parse video1.sig.xml
+
+# Compare two files  
+Mpeg7SignatureParser.exe compare video1.sig.xml video2.sig.xml
+
+# Batch process directory
+Mpeg7SignatureParser.exe batch ./signatures results.json
